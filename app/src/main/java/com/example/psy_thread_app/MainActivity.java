@@ -2,13 +2,18 @@ package com.example.psy_thread_app;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     private Button buttonStartThread;
@@ -30,8 +35,10 @@ public class MainActivity extends AppCompatActivity {
         //thread.start();
 
         //Gesione Thread 2 (preferito perchè è possibile continuare a
-        ExampleRunnable runnable = new ExampleRunnable(10);
-        new Thread(runnable).start();
+        //ExampleRunnable runnable = new ExampleRunnable(10);
+        //new Thread(runnable).start();
+        MyAsyncTask myAsyncTask = new MyAsyncTask(10);
+        myAsyncTask.execute();
     }
 
     public void stopThread (View view){
@@ -114,4 +121,61 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+    public class MyAsyncTask extends AsyncTask<Void, Void, String> {
+        int seconds;
+        public MyAsyncTask(int i) {
+            this.seconds = i;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    buttonStartThread.setText("..working..");
+                }
+            });
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            for (int i = 0 ; i < seconds ; i++){
+                if(stopThread)
+                {
+                    return "aborted";
+                }
+                if( i == 5){
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            buttonStartThread.setText("50%");
+                        }
+                    });
+                }
+                Log.d(TAG, "start Thread: "+i);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return "done";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    buttonStartThread.setText("Start");
+                }
+            });
+        }
+    }
+
 }
