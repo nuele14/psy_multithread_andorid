@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     private Button buttonStartThread;
+    private TextView outTextView;
     private Handler mainHandler = new Handler();
     private  volatile boolean stopThread = false;
     private static final String TAG="MainActivity";
@@ -26,18 +28,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         buttonStartThread = findViewById(R.id.button_start_thread);
+        outTextView = findViewById(R.id.textView);
     }
 
     public void startThread (View view){
         stopThread = false;
-        //Gestione Thread 1
-        //ExampleThread thread = new ExampleThread(10);
-        //thread.start();
-
-        //Gesione Thread 2 (preferito perchè è possibile continuare a
-        //ExampleRunnable runnable = new ExampleRunnable(10);
-        //new Thread(runnable).start();
-        MyAsyncTask myAsyncTask = new MyAsyncTask(10);
+        WebAsyncTask myAsyncTask = new WebAsyncTask();
         myAsyncTask.execute();
     }
 
@@ -46,81 +42,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    class ExampleThread extends Thread{
-        int seconds;
 
-        ExampleThread(int seconds){
-            this.seconds = seconds;
-        }
-        @Override
-        public void run() {
-            for (int i = 0 ; i < seconds ; i++){
-                Log.d(TAG, "start Thread: "+i);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
-    class ExampleRunnable implements Runnable{
-        int seconds;
 
-        ExampleRunnable(int seconds){
-            this.seconds = seconds;
-        }
-        @Override
-        public void run() {
-            for (int i = 0 ; i < seconds ; i++){
-                if(stopThread)
-                {
-                    return;
-                }
-                if( i == 5){
-                    /*
-                    // modo 1
-                    mainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            buttonStartThread.setText("50%");
-                        }
-                    });
-                    */
-
-                    /*// più raffinato ma complicato
-                    Handler thereadHandler = new Handler(Looper.getMainLooper());
-                    thereadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            buttonStartThread.setText("50%");
-                        }
-                    });*/
-
-                    /*buttonStartThread.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            buttonStartThread.setText("50%");
-                        }
-                    });*/
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            buttonStartThread.setText("50%");
-                        }
-                    });
-                }
-                Log.d(TAG, "start Thread: "+i);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
 
     public class MyAsyncTask extends AsyncTask<Void, Void, String> {
@@ -173,6 +97,49 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     buttonStartThread.setText("Start");
+                }
+            });
+        }
+    }
+
+    public class WebAsyncTask extends AsyncTask<Void, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    outTextView.setText("..working..");
+                }
+            });
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String v="none";
+            String address="https://zenquotes.io/api/random";
+            try
+            {
+                URL url=new URL(address);
+                BufferedReader rd = new BufferedReader(new InputStreamReader(url.openStream()));
+                String line = rd.readLine();
+                v=line;
+            }
+            catch (IOException e)
+            {
+                v = e.toString();
+            }
+            return v;
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    outTextView.setText(result);
                 }
             });
         }
