@@ -2,6 +2,9 @@ package com.example.psy_thread_app;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,30 +12,33 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.nodes.Element;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import org.jsoup.Jsoup;
-import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.Console;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -47,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonStartThread;
     private TextView quoteTextView;
     private TextView authTextView;
+    private ImageView imageView;
+
     private Handler mainHandler = new Handler();
     private  volatile boolean stopThread = false;
     private static final String TAG="MainActivity";
@@ -58,12 +66,13 @@ public class MainActivity extends AppCompatActivity {
         buttonStartThread = findViewById(R.id.button_start_thread);
         quoteTextView = findViewById(R.id.textViewQuotes);
         authTextView = findViewById(R.id.textViewAuthor);
+        imageView = findViewById(R.id.imageViewAvatar);
 
     }
 
     public void startThread (View view){
         stopThread = false;
-        MyAsyncTask myAsyncTask = new MyAsyncTask();
+        WebAsyncTask myAsyncTask = new WebAsyncTask();
         myAsyncTask.execute();
     }
 
@@ -142,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... params) {
-            String result = "error";
+            String imageUrl = null;
             boolean searchForImage = false;
             String jsonString="";
             String author = null;
@@ -213,13 +222,37 @@ public class MainActivity extends AppCompatActivity {
                     List<String> listaUrl = new ArrayList<>();
                     // Iterate through all img nodes
                     for (int i = 0; i < imagesNodeList.getLength(); i++) {
-                        Element imgElement = (Element) imagesNodeList.item(i);
-                        if(imgElement.hasAttr("src")){
-                            String urlEncripted = String.valueOf(imgElement.getElementsByAttribute("src"));
-                            listaUrl.add(urlEncripted);
+                        Element imageElement = (Element) imagesNodeList.item(i);
+                        String url = imageElement.getAttribute("src");
+                        if (!TextUtils.isEmpty(url)) {
+                            listaUrl.add(url);
                         }
                     }
-                    Log.d(TAG, "doc : " + listaUrl.toString());
+                    int size = listaUrl.size();
+                    if(size>0){
+                        Random random = new Random();
+                        int randomNumber = random.nextInt(size);
+                        imageUrl = listaUrl.get(randomNumber);
+                        //String imageURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCLjkOCer-xuhkZuvvk3LJYiem4YkAJ869lUXSei5OtZ-SDLWi&usqp=CAU";
+
+
+                        try {
+                                        // Create an HTTP client
+                            URL url=new URL(imageUrl);
+                            InputStream inputStream = url.openStream();
+                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    imageView.setImageBitmap(bitmap);
+                                }
+                            });
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
 
                     // Process the JSON data
@@ -233,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            return "done";
+            return "";
 
         }
 
