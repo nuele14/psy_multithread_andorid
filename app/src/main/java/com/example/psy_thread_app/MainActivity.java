@@ -14,12 +14,30 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.nodes.Element;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -45,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void startThread (View view){
         stopThread = false;
-        WebAsyncTask myAsyncTask = new WebAsyncTask();
+        MyAsyncTask myAsyncTask = new MyAsyncTask();
         myAsyncTask.execute();
     }
 
@@ -60,10 +78,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public class MyAsyncTask extends AsyncTask<Void, Void, String> {
-        int seconds;
-        public MyAsyncTask(int i) {
-            this.seconds = i;
-        }
 
         @Override
         protected void onPreExecute() {
@@ -78,25 +92,24 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... params) {
-            for (int i = 0 ; i < seconds ; i++){
-                if(stopThread)
-                {
-                    return "aborted";
-                }
-                if( i == 5){
+            int x, y, flg;
+            int N = 100;
+            for (x = 1; x <= N; x++) {
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            buttonStartThread.setText("50%");
-                        }
-                    });
+                if (x == 1 || x == 0)
+                    continue;
+
+                flg = 1;
+
+                for (y = 2; y <= x / 2; ++y) {
+                    if (x % y == 0) {
+                        flg = 0;
+                        break;
+                    }
                 }
-                Log.d(TAG, "start Thread: "+i);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+
+                if (flg == 1){
+                    Log.d(TAG, "numero primo: " + x);
                 }
             }
             return "done";
@@ -170,8 +183,9 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            /*if(searchForImage){
+            if(searchForImage){
                 String searchUrl = "https://www.google.com/search?q=" + author + "&tbm=isch";
+
                 // Create an HTTP client
                 OkHttpClient client = new OkHttpClient();
 
@@ -190,26 +204,34 @@ public class MainActivity extends AppCompatActivity {
                     // Get the response body as a string
                     String responseBody = response.body().string();
 
-                    // Parse the JSON response
-                    JSONObject jsonObject = new JSONObject(responseBody);
+                    XPathFactory factory = XPathFactory.newInstance();
+                    XPath xpath = factory.newXPath();
+
+                    InputSource source = new InputSource(new StringReader(responseBody));
+                    Document doc = (Document) xpath.evaluate("/", source, XPathConstants.NODE);
+                    NodeList imagesNodeList = doc.getElementsByTagName("img");
+                    List<String> listaUrl = new ArrayList<>();
+                    // Iterate through all img nodes
+                    for (int i = 0; i < imagesNodeList.getLength(); i++) {
+                        Element imgElement = (Element) imagesNodeList.item(i);
+                        if(imgElement.hasAttr("src")){
+                            String urlEncripted = String.valueOf(imgElement.getElementsByAttribute("src"));
+                            listaUrl.add(urlEncripted);
+                        }
+                    }
+                    Log.d(TAG, "doc : " + listaUrl.toString());
+
+
                     // Process the JSON data
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (XPathExpressionException e) {
+                    throw new RuntimeException(e);
                 }
 
-                // Get the response entity
-                HttpEntity entity = response.getEntity();
 
-                Response response = client.newCall(request).execute();
-                String imageUrl = "";
-                Document doc = Jsoup.parse(response.body().string());
-                Elements imgElements = doc.getElementsByTag("img");
-                if (!imgElements.isEmpty()) {
-                    Element firstImg = imgElements.first();
-                    imageUrl = firstImg.attr("src");
-                }
-                if (!TextUtils.isEmpty(imageUrl)) {
-                    Picasso.get().load(imageUrl).into(ivImage);
-                }
-            }*/
+
+            }
 
             return "done";
 
