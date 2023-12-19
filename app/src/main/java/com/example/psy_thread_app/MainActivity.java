@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView quoteTextView;
     private TextView authTextView;
     private ImageView imageView;
+    private TextView numbersView;
 
     private Handler mainHandler = new Handler();
     private  volatile boolean stopThread = false;
@@ -67,10 +69,16 @@ public class MainActivity extends AppCompatActivity {
         quoteTextView = findViewById(R.id.textViewQuotes);
         authTextView = findViewById(R.id.textViewAuthor);
         imageView = findViewById(R.id.imageViewAvatar);
+        numbersView = findViewById(R.id.textViewPrimaryNumbers);
 
     }
 
-    public void startThread (View view){
+    public void startNumberThread (View view){
+        stopThread = false;
+        MyAsyncTask myAsyncTask = new MyAsyncTask();
+        myAsyncTask.execute();
+    }
+    public void startQuoteThread (View view){
         stopThread = false;
         WebAsyncTask myAsyncTask = new WebAsyncTask();
         myAsyncTask.execute();
@@ -95,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     buttonStartThread.setText("..working..");
+                    numbersView.setText("");
                 }
             });
         }
@@ -118,7 +127,21 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (flg == 1){
-                    Log.d(TAG, "numero primo: " + x);
+                    int finalX = x;
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String numero = String.valueOf(finalX);
+                            StringBuilder builder = new StringBuilder(numbersView.getText().toString());
+                            builder.insert(0, "trovato: "+numero+"\n");
+                            numbersView.setText(builder.toString());
+                        }
+                    });
                 }
             }
             return "done";
