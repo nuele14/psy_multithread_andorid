@@ -16,6 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         buttonStartNumber.setText("START NUMBER");
         buttonStartQuote.setText("START QUOTES");
+        buttonStartAll.setText("START ALL");
 
         switchBackground.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -95,7 +97,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void startAllThread (View view) throws InterruptedException {
+        if(!numberThreadActive && !quoteThreadActive){
+            buttonStartAll.setText("...working...");
+            buttonStartAll.setClickable(false);
+            startNumberThread(view);
+            startQuoteThread(view);
+        }
+        else{
+            Toast.makeText(this, "Alcuni thread sono già attivi, aspettare che si concludano", Toast.LENGTH_SHORT).show();
+        }
 
+    }
+
+    public void checkStartAllButton (View view){
+        if(!numberThreadActive && !quoteThreadActive){
+            buttonStartAll.setText("START ALL");
+            buttonStartAll.setClickable(true);
+        }
+
+    }
 
 
     public void startNumberThread (View view) throws InterruptedException {
@@ -124,10 +145,6 @@ public class MainActivity extends AppCompatActivity {
             quotesThread.join();
         }
 
-    }
-
-    public void stopThread (View view){
-        stopThread = true;
     }
 
   public class NumbersRunnable implements Runnable{
@@ -179,8 +196,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     buttonStartNumber.setText("START NUMBER");
+                    checkStartAllButton(null);
                 }
             });
+
 
         }
     }
@@ -297,8 +316,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     buttonStartQuote.setText("START QUOTES");
+                    checkStartAllButton(null);
                 }
             });
+
 
         }
     }

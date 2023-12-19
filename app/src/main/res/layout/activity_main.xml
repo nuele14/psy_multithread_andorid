@@ -30,7 +30,7 @@
             android:id="@+id/buttonStartAll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="stopThread"
+            android:onClick="startAllThread"
             android:text="Start All"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
