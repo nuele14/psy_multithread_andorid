@@ -75,30 +75,23 @@ public class MainActivity extends AppCompatActivity {
 
     public void startNumberThread (View view){
         stopThread = false;
-        MyAsyncTask myAsyncTask = new MyAsyncTask();
-        myAsyncTask.execute();
+        NumbersRunnable runnableNumbers = new NumbersRunnable();
+        new Thread(runnableNumbers).start();
     }
     public void startQuoteThread (View view){
         stopThread = false;
-        WebAsyncTask myAsyncTask = new WebAsyncTask();
-        myAsyncTask.execute();
+        QuotesRunnable runnable = new QuotesRunnable();
+        new Thread(runnable).start();
     }
 
     public void stopThread (View view){
         stopThread = true;
     }
 
-
-
-
-
-
-
-    public class MyAsyncTask extends AsyncTask<Void, Void, String> {
+  public class NumbersRunnable implements Runnable{
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        public void run() {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -106,10 +99,6 @@ public class MainActivity extends AppCompatActivity {
                     numbersView.setText("");
                 }
             });
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
             int x, y, flg;
             int N = 100;
             for (x = 1; x <= N; x++) {
@@ -144,36 +133,13 @@ public class MainActivity extends AppCompatActivity {
                     });
                 }
             }
-            return "done";
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    buttonStartThread.setText("Start");
-                }
-            });
         }
     }
 
-    public class WebAsyncTask extends AsyncTask<Void, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    authTextView.setText("..working..");
-                    quoteTextView.setText("..working..");
-                }
-            });
-        }
+    public class QuotesRunnable implements Runnable{
 
         @Override
-        protected String doInBackground(Void... params) {
+        public void run() {
             String imageUrl = null;
             boolean searchForImage = false;
             String jsonString="";
@@ -232,8 +198,6 @@ public class MainActivity extends AppCompatActivity {
                     if (response.code() != 200) {
                         //TODO:inserire una eccezzione
                     }
-
-                    // Get the response body as a string
                     String responseBody = response.body().string();
 
                     XPathFactory factory = XPathFactory.newInstance();
@@ -256,11 +220,8 @@ public class MainActivity extends AppCompatActivity {
                         Random random = new Random();
                         int randomNumber = random.nextInt(size);
                         imageUrl = listaUrl.get(randomNumber);
-                        //String imageURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCLjkOCer-xuhkZuvvk3LJYiem4YkAJ869lUXSei5OtZ-SDLWi&usqp=CAU";
-
-
                         try {
-                                        // Create an HTTP client
+                            // Create an HTTP client
                             URL url=new URL(imageUrl);
                             InputStream inputStream = url.openStream();
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
@@ -276,33 +237,14 @@ public class MainActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-
-
-                    // Process the JSON data
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } catch (XPathExpressionException e) {
                     throw new RuntimeException(e);
                 }
-
-
-
             }
-
-            return "";
-
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //outTextView.setText(result);
-                }
-            });
         }
     }
+
 
 }
