@@ -6,11 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView authTextView;
     private ImageView imageView;
     private TextView numbersView;
+    private Switch switchBackground;
 
     private  volatile boolean stopThread = false;
     private volatile boolean quoteThreadActive = false;
@@ -71,10 +76,25 @@ public class MainActivity extends AppCompatActivity {
         authTextView = findViewById(R.id.textViewAuthor);
         imageView = findViewById(R.id.imageViewAvatar);
         numbersView = findViewById(R.id.textViewPrimaryNumbers);
+        switchBackground = findViewById(R.id.switchBackground);
 
         buttonStartNumber.setText("START NUMBER");
         buttonStartQuote.setText("START QUOTES");
+
+        switchBackground.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Set the background color to red
+                    getWindow().setBackgroundDrawable(new ColorDrawable(Color.CYAN));
+                } else {
+                    // Set the background color to blue
+                    getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+                }
+            }
+        });
     }
+
 
 
 

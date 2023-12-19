@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Switch
-            android:id="@+id/switch1"
+            android:id="@+id/switchBackground"
             android:layout_width="75dp"
             android:layout_height="48dp"
             android:layout_marginStart="50dp"
@@ -48,7 +48,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.096"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/switch1"
+            app:layout_constraintTop_toTopOf="@+id/switchBackground"
             app:layout_constraintVertical_bias="0.176" />
 
         <Button
@@ -61,7 +61,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.917"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/switch1"
+            app:layout_constraintTop_toTopOf="@+id/switchBackground"
             app:layout_constraintVertical_bias="0.176" />
 
         <TextView
@@ -107,7 +107,7 @@
             app:layout_constraintBottom_toTopOf="@+id/imageViewAvatar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/switch1"
+            app:layout_constraintTop_toTopOf="@+id/switchBackground"
             app:layout_constraintVertical_bias="0.911">
 
             <LinearLayout
