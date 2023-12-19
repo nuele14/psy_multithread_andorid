@@ -27,7 +27,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/button_start_thread"
+            android:id="@+id/buttonStartAll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="stopThread"
@@ -39,7 +39,7 @@
             app:layout_constraintVertical_bias="0.104" />
 
         <Button
-            android:id="@+id/buttonStop"
+            android:id="@+id/buttonStartNumbers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="startNumberThread"
@@ -52,7 +52,7 @@
             app:layout_constraintVertical_bias="0.176" />
 
         <Button
-            android:id="@+id/buttonStop2"
+            android:id="@+id/buttonStartQuote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="startQuoteThread"
@@ -71,7 +71,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonStop"
+            app:layout_constraintTop_toBottomOf="@+id/buttonStartNumbers"
             app:layout_constraintVertical_bias="0.734" />
 
         <TextView
@@ -84,7 +84,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonStop"
+            app:layout_constraintTop_toBottomOf="@+id/buttonStartNumbers"
             app:layout_constraintVertical_bias="0.844" />
 
         <ImageView

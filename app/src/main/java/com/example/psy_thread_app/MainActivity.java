@@ -3,17 +3,14 @@ package com.example.psy_thread_app;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -23,20 +20,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 
 import java.io.BufferedReader;
-import java.io.Console;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -51,37 +42,68 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private Button buttonStartThread;
+    private Button buttonStartAll;
+    private Button buttonStartQuote;
+    private Button buttonStartNumber;
     private TextView quoteTextView;
     private TextView authTextView;
     private ImageView imageView;
     private TextView numbersView;
 
-    private Handler mainHandler = new Handler();
     private  volatile boolean stopThread = false;
-    private static final String TAG="MainActivity";
+    private volatile boolean quoteThreadActive = false;
+    private volatile boolean numberThreadActive = false;
+    NumbersRunnable runnableNumbers = new NumbersRunnable();
+    QuotesRunnable runnableQuotes = new QuotesRunnable();
+    Thread quotesThread;
+    Thread numbersThread;
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        buttonStartThread = findViewById(R.id.button_start_thread);
+        buttonStartAll = findViewById(R.id.buttonStartAll);
+        buttonStartQuote = findViewById(R.id.buttonStartQuote);
+        buttonStartNumber = findViewById(R.id.buttonStartNumbers);
         quoteTextView = findViewById(R.id.textViewQuotes);
         authTextView = findViewById(R.id.textViewAuthor);
         imageView = findViewById(R.id.imageViewAvatar);
         numbersView = findViewById(R.id.textViewPrimaryNumbers);
 
+        buttonStartNumber.setText("START NUMBER");
+        buttonStartQuote.setText("START QUOTES");
     }
 
-    public void startNumberThread (View view){
-        stopThread = false;
-        NumbersRunnable runnableNumbers = new NumbersRunnable();
-        new Thread(runnableNumbers).start();
+
+
+    public void startNumberThread (View view) throws InterruptedException {
+        if(!numberThreadActive){
+            numbersView.setText("Inizio il calcolo dei numeri primi");
+            buttonStartNumber.setText("STOP NUMBER");
+            numberThreadActive = true;
+            stopThread = false;
+            numbersThread = new Thread(runnableNumbers);
+            numbersThread.start();
+        }else{
+            numberThreadActive = false;
+            stopThread = true;
+            numbersThread.join();
+        }
+
     }
-    public void startQuoteThread (View view){
-        stopThread = false;
-        QuotesRunnable runnable = new QuotesRunnable();
-        new Thread(runnable).start();
+    public void startQuoteThread (View view) throws InterruptedException {
+        if(!quoteThreadActive){
+            buttonStartQuote.setText("STOP QUOTES");
+            quoteThreadActive = true;
+            quotesThread = new Thread(runnableQuotes);
+            quotesThread.start();
+        }else{
+            quoteThreadActive = false;
+            quotesThread.join();
+        }
+
     }
 
     public void stopThread (View view){
@@ -92,16 +114,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void run() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    buttonStartThread.setText("..working..");
-                    numbersView.setText("");
-                }
-            });
+
             int x, y, flg;
             int N = 100;
             for (x = 1; x <= N; x++) {
+                if(stopThread)
+                {
+                    break;
+                }
 
                 if (x == 1 || x == 0)
                     continue;
@@ -125,14 +145,23 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            String numero = String.valueOf(finalX);
+                            String numeroPrimo = String.valueOf(finalX);
                             StringBuilder builder = new StringBuilder(numbersView.getText().toString());
-                            builder.insert(0, "trovato: "+numero+"\n");
+                            builder.insert(0, "trovato: "+numeroPrimo+"\n");
                             numbersView.setText(builder.toString());
                         }
                     });
                 }
             }
+            //ripristino stato iniziale
+            numberThreadActive = false;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    buttonStartNumber.setText("START NUMBER");
+                }
+            });
+
         }
     }
 
@@ -243,6 +272,14 @@ public class MainActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
             }
+            quoteThreadActive = false;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    buttonStartQuote.setText("START QUOTES");
+                }
+            });
+
         }
     }
 
