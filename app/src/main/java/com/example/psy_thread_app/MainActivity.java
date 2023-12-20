@@ -4,6 +4,7 @@ package com.example.psy_thread_app;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         buttonStartAll = findViewById(R.id.buttonStartAll);
         buttonStartQuote = findViewById(R.id.buttonStartQuote);
@@ -225,13 +227,8 @@ public class MainActivity extends AppCompatActivity {
                 jsonString = e.toString();
             }
             try {
-                // Parse JSON array
                 JSONArray jsonArray = new JSONArray(jsonString);
-
-                // Access the first object in the array
                 JSONObject firstObject = jsonArray.getJSONObject(0);
-
-                // Access values by key
                 String quote = firstObject.getString("q");
                 author = firstObject.getString("a");
                 if(author!=null){
@@ -251,16 +248,8 @@ public class MainActivity extends AppCompatActivity {
             }
             if(searchForImage){
                 String searchUrl = "https://www.google.com/search?q=" + author + "&tbm=isch";
-
-                // Create an HTTP client
                 OkHttpClient client = new OkHttpClient();
-
-                // Create a GET request
-                Request request = new Request.Builder()
-                        .url(searchUrl)
-                        .build();
-
-                // Execute the request
+                Request request = new Request.Builder().url(searchUrl).build();
                 try (Response response = client.newCall(request).execute()) {
                     // Check the response code
                     if (response.code() != 200) {
@@ -275,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
                     Document doc = (Document) xpath.evaluate("/", source, XPathConstants.NODE);
                     NodeList imagesNodeList = doc.getElementsByTagName("img");
                     List<String> listaUrl = new ArrayList<>();
-                    // Iterate through all img nodes
+                    // All'interno della pagina ricerco tutti i collegamenti alle foto e creo una lista
                     for (int i = 0; i < imagesNodeList.getLength(); i++) {
                         Element imageElement = (Element) imagesNodeList.item(i);
                         String url = imageElement.getAttribute("src");
@@ -285,11 +274,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                     int size = listaUrl.size();
                     if(size>0){
+                        //seleziono casualmente una immagine all'interno della lista
                         Random random = new Random();
                         int randomNumber = random.nextInt(size);
                         imageUrl = listaUrl.get(randomNumber);
                         try {
-                            // Create an HTTP client
                             URL url=new URL(imageUrl);
                             InputStream inputStream = url.openStream();
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);

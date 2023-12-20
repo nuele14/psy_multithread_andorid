@@ -1,48 +1,37 @@
-# Progetto per applicazione mobile Android
+# Progetto Multithread Android - PSY
 
-## Titolo: Gestione di due thread concorrenti
+<img src="./image.jpg" alt="Screenshot della schermata dell'applicazione" width="300">
 
 ## Descrizione:
 
-L'applicazione permette di gestire due thread concorrenti. Il primo thread interroga l'API di ZenQuotes per ottenere una citazione casuale. Nel caso in cui la citazione includa il nome di una persona, il thread esegue anche una ricerca di immagini su Google per trovare una foto associata al nome. Il secondo thread calcola e appende ad una lista una serie di numeri primi. La lista viene continuamente aggiornata con i nuovi numeri primi calcolati.
+
+L'applicazione permette di gestire due thread concorrenti (tre contando anche il main). Il primo thread interroga l'API di ZenQuotes per ottenere una citazione casuale. Appena ricevuta la risposta, il thread esegue anche una ricerca di immagini su Google per trovare una foto associata all'autore. Il secondo thread calcola tutti i numeri primi (fino a un limite di 100) e li aggiunge a una lista. La lista viene visualizzata e continuamente aggiornata con i nuovi numeri primi calcolati. Inoltre, uno switch permette di cambiare lo sfondo dell'applicazione in qualsiasi momento.
 
 ## Interazione con l'utente:
 
 L'interfaccia utente è composta da tre bottoni:
 
-Start all: avvia i due thread
-Start numeri primi: avvia il thread dei numeri primi
-Start quotes: avvia il thread delle citazioni
+- Avvia tutto: avvia i due thread
+- Avvia numeri: avvia il thread che calcola i numeri primi
+- Avvia citazioni: avvia il thread per la ricerca delle citazioni
 
-Inoltre, è presente un toggle che permette di cambiare il font dell'interfaccia utente o il tema (da chiaro a scuro).
-
-## Interazione dei bottoni:
-
-Start all: disabilita gli altri due bottoni e cambia il proprio testo in "Stop all".
-Start numeri primi: disabilita "Start all" e cambia il proprio testo in "Stop numeri primi".
-Start quotes: disabilita "Start all" e cambia il proprio testo in "Stop quotes".
-
-Il toggle ha associata una label sulla quale viene visualizzata la famiglia di font o il colore del tema attualmente selezionato.
+Il toggle in cima all'interfaccia utente permette di cambiare lo sfondo dell'interfaccia utente in modo fluido e immediato.
 
 ## Struttura dell'applicazione:
 
 L'applicazione è composta dalle seguenti classi:
 
-MainActivity: classe principale dell'applicazione. Gestisce l'interazione con l'utente e i thread.
-QuotesThread: classe che implementa il thread per l'interrogazione dell'API di ZenQuotes.
-PrimeNumbersThread: classe che implementa il thread per il calcolo dei numeri primi.
+- MainActivity: classe principale dell'applicazione. Gestisce l'interazione con l'utente e i thread.
+- QuotesRunnable: classe che implementa il thread per l'interrogazione dell'API di ZenQuotes.
+- NumbersRunnable: una classe che implementa il thread per il calcolo dei numeri primi. Vengono presi in considerazione solo i numeri primi minori di 100 (hardcoded). Ogni volta che viene trovato un numero primo, viene aggiunto alla lista e viene eseguito un timeout di 1 secondo.
 
-## Implementazione:
+Per l'implementazione dei thread è stata utilizzata l'interfaccia Runnable, mentre per aggiornare l'interfaccia grafica da un thread esterno alla MainActivity viene utilizzato il metodo runOnUiThread.
 
-L'applicazione viene implementata utilizzando i seguenti componenti:
+## Note:
 
-Intent: per avviare l'attività di ricerca di immagini su Google.
-AsyncTask: per eseguire le operazioni in background in modo asincrono.
-Handler: per gestire la comunicazione tra i thread e l'interfaccia utente.
-
-## Test:
-
-L'applicazione viene testata manualmente utilizzando i seguenti casi di test:
-
-Verifica dell'interazione con l'utente: vengono verificati il comportamento dei bottoni e del toggle.
-Verifica del funzionamento dei thread: vengono verificati i risultati ottenuti dai thread
+- Interfaccia Grafica:
+In questa esercitazione non è stata prestata particolare attenzione all'interfaccia grafica, al fit del testo all'interno delle label e alla compatibilità su più dispositivi.
+- Gestione Errori:
+L'applicazione presenta una gestione delle eccezioni marginale. In particolare, si assume sempre il caso migliore in cui l'utente ha disponibilità di connessione ad internet, l'API di ZenQuotes è disponibile e la ricerca di immagini su Google ha successo. In caso di errori, l'applicazione potrebbe non funzionare correttamente.
+- Considerazioni generali:
+L'implementazione delle classi è stata fatta per comodità all'interno dello stesso file MainActivity.java, limitando così il passaggio di parametri a discapito della pulizia del codice.
